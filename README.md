@@ -41,9 +41,9 @@ The system is trained and evaluated on the Toronto Emotional Speech Set (TESS).
 
 | Pipeline | Accuracy |
 |-----------|-----------|
-| Speech Pipeline | _____ % |
-| Text Pipeline | _____ % |
-| Fusion Pipeline | _____ % |
+| Speech Pipeline | 99.64% |
+| Text Pipeline | 14.29% |
+| Fusion Pipeline | 100% |
 
 The experiments demonstrate that acoustic information is the primary source of emotional cues in TESS. The fusion model learns to adaptively weight each modality, reducing reliance on text when semantic information is not informative.
 
