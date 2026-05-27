@@ -53,7 +53,7 @@ Speech Embeddings + Text Embeddings
 | Pipeline | Architecture | Accuracy |
 |----------|-------------|----------|
 | Speech Pipeline | MFCC + Bi-LSTM + Attention | 99.64% |
-| Text Pipeline | Fine-Tuned BERT | ~14% |
+| Text Pipeline | Fine-Tuned BERT | ~14.29% |
 | Fusion Pipeline | Attentive Gated Fusion | 100.00% |
 
 ---
@@ -66,7 +66,7 @@ The TESS dataset primarily contains emotionally neutral lexical phrases such as:
 > "Say the word bar"
 
 As a result, the text modality contains very limited emotional semantic information.  
-Because of this, the standalone text pipeline collapses close to random-chance performance (~14% for 7 classes).
+Because of this, the standalone text pipeline collapses close to random-chance performance (~14.29% for 7 classes).
 
 The speech modality carries the majority of the emotional signal through:
 - Pitch variation
