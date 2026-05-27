@@ -296,3 +296,6 @@ Kishan Jayaprakash
 
 GitHub Repository:
 https://github.com/kishanjayaprakash/Multimodal-Emotion-Recognition
+Google drive link of Project : https://drive.google.com/drive/folders/1Q4eUv0S8ieQp7XKGsgnzRVI9mP-3BN7C?usp=sharing
+Download Binary files of the Model : https://drive.google.com/drive/folders/1bD4fco1VvfyAxxHs54QyVpb5hpi4Shbt?usp=sharing
+
