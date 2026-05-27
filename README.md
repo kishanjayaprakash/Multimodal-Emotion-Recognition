@@ -1,231 +1,298 @@
 # Multimodal Emotion Recognition System
 
-A modular deep learning framework designed to recognize human emotional states across individual and combined modalities using the **Toronto Emotional Speech Set (TESS)**. This system evaluates standalone acoustic features and semantic text embeddings, ultimately combining them through a robust **cross-modal attentively gated fusion network**.
+A deep learning based multimodal emotion recognition framework designed to analyze emotional states using speech, text, and fused multimodal representations.
+
+This project evaluates how different modalities contribute to emotion recognition performance using the Toronto Emotional Speech Set (TESS) dataset.
 
 ---
 
-## 🚀 Project Overview
+# Project Overview
 
-Human emotion is inherently multimodal; we express feelings not just through the words we say (lexical semantics) but how we say them (acoustic prosody).
+Human emotions are expressed not only through words, but also through vocal tone, pitch, intensity, and speaking style.
 
-The goal of this project is to build and analyze three distinct machine learning pipelines to understand how different architectures handle these modalities:
+This project implements and compares three separate pipelines:
 
-1. **Speech Pipeline:** Extracts acoustic features to evaluate vocal tone, pitch, and energy.
+1. **Speech Pipeline**
+   - Extracts MFCC acoustic features from speech audio.
+   - Uses a Bi-LSTM + Attention architecture for temporal emotion modeling.
 
-2. **Text Pipeline:** Uses transformer models to evaluate the semantic meaning of transcriptions.
+2. **Text Pipeline**
+   - Uses a transformer-based BERT text encoder.
+   - Evaluates semantic emotion information from textual transcripts.
 
-3. **Multimodal Fusion Pipeline:** Dynamically weighs both inputs using an Attention Gate to make a final, joint predictive decision.
-
----
-
-## 📊 The Dataset: TESS
-
-The system is trained and evaluated on the Toronto Emotional Speech Set (TESS).
-
-**Demographics:** Features a set of 200 target words spoken in the carrier phrase *"Say the word _____"* by two actresses (one younger, one older).
-
-**Emotions (7 Classes):**
-- Anger
-- Disgust
-- Fear
-- Happiness
-- Pleasant Surprise
-- Sadness
-- Neutral
-
-**Dataset Challenge:** Because the dataset uses a static carrier phrase for every audio clip, the text transcripts are lexically neutral. This provides a unique engineering challenge: training a multimodal system where one modality (text) contains very limited emotional information, forcing the network to learn how much each modality should contribute to the final prediction.
+3. **Fusion Pipeline**
+   - Combines speech and text embeddings using an attentively gated multimodal fusion layer.
+   - Dynamically adjusts modality importance during inference.
 
 ---
 
-## 📈 Experimental Results
+# Pipeline Architectures
 
-| Pipeline | Accuracy |
-|-----------|-----------|
-| Speech Pipeline | 99.64% |
-| Text Pipeline | 14.29% |
-| Fusion Pipeline | 100% |
+## Speech Pipeline
+Input Audio  
+→ MFCC + Delta + Delta-Delta Feature Extraction  
+→ Bi-LSTM Network  
+→ Self-Attention Layer  
+→ Emotion Classification
 
-The experiments demonstrate that acoustic information is the primary source of emotional cues in TESS. The fusion model learns to adaptively weight each modality, reducing reliance on text when semantic information is not informative.
+## Text Pipeline
+Text Transcript  
+→ BERT Tokenizer  
+→ Fine-Tuned BERT Encoder  
+→ Dense Classification Layer
 
----
-
-## 🧠 System Architecture Deep Dive
-
-### 1. Acoustic Modality (Speech Pipeline)
-
-Designed to capture temporal acoustic sequences.
-
-* **Feature Extraction:** Raw audio waveforms are processed using the Librosa library. The system extracts 40 Mel-Frequency Cepstral Coefficients (MFCCs) alongside their first (Δ) and second (ΔΔ) derivatives. This generates a rich temporal feature representation for every audio frame.
-
-* **Temporal Modelling (Bi-LSTM):** A Bidirectional Long Short-Term Memory (Bi-LSTM) network processes acoustic frames and captures temporal dependencies present in emotional speech.
-
-* **Contextual Attention:** A custom self-attention mechanism calculates weights across hidden states, allowing the network to focus on emotionally relevant regions while reducing the influence of less informative segments.
-
-### 2. Lexical Modality (Text Pipeline)
-
-Designed to extract contextual semantic meaning from speech transcripts.
-
-* **Backbone:** Utilizes HuggingFace's fine-tuned `bert-base-uncased` transformer model.
-
-* **Tokenization:** Converts transcription inputs into token sequences that can be processed by the transformer architecture.
-
-### 3. Cross-Modal Gated Fusion Pipeline
-
-The primary contribution of this project is a cross-modal gated fusion network that aligns and combines acoustic and textual representations.
-
-* **Dimensionality Projection:** Feature vectors from both modalities are projected into a shared feature space before fusion.
-
-* **Attentive Gating Network:** A neural gate processes information from both modalities and computes an attention weight between 0 and 1 using a Sigmoid activation function.
-
-* **Dynamic Fusion:** The final representation is generated by dynamically combining speech and text features based on the learned gate value.
-
-* **Classification Head:** The fused representation is passed through a classification layer to produce the final emotion prediction.
+## Fusion Pipeline
+Speech Embeddings + Text Embeddings  
+→ Gated Attention Fusion Layer  
+→ Final Emotion Prediction
 
 ---
 
-## 📈 Training Details
+# Experimental Results
 
-**Hardware:** Trained using NVIDIA GPU acceleration through Google Colab.
-
-**Loss Function:** CrossEntropyLoss.
-
-**Optimization:** Standard deep learning optimization techniques were used to train the speech, text, and fusion pipelines.
-
-**Data Processing:** Feature extraction and preprocessing were performed separately for each modality before training and evaluation.
+| Pipeline | Architecture | Accuracy |
+|----------|-------------|----------|
+| Speech Pipeline | MFCC + Bi-LSTM + Attention | 99.64% |
+| Text Pipeline | Fine-Tuned BERT | ~14% |
+| Fusion Pipeline | Attentive Gated Fusion | 100.00% |
 
 ---
 
-## 🔬 Experimental Results & Modality Analysis
+# Important Observation
 
-### The Dataset Reality
+The TESS dataset primarily contains emotionally neutral lexical phrases such as:
 
-During standalone testing, the **Text Pipeline** drops significantly toward random-chance performance levels. This is an expected outcome because the TESS transcriptions are lexically neutral carrier phrases (e.g., *"Say the word 'base'"*), providing little semantic information for emotion recognition.
+> "Say the word back"  
+> "Say the word bar"
 
-### Fusion Pipeline Analysis
+As a result, the text modality contains very limited emotional semantic information.  
+Because of this, the standalone text pipeline collapses close to random-chance performance (~14% for 7 classes).
 
-To handle the uninformative textual modality, the gating network learns to reduce reliance on text and prioritize the modality that provides the strongest emotional cues.
+The speech modality carries the majority of the emotional signal through:
+- Pitch variation
+- Energy
+- Vocal intensity
+- Prosodic patterns
+- Temporal acoustic behavior
 
-During testing and live inference, the gate allocates the majority of its weight to the Speech Acoustic stream while reducing the contribution of the text modality.
-
-These results indicate that the gating mechanism effectively adapts to modality quality, prioritizing speech features when textual information contributes little to emotion recognition.
+The fusion pipeline dynamically learns to prioritize the speech modality when textual information is weak.
 
 ---
 
-## 📂 Repository Architecture
+# Limitations
 
-The workspace is separated into modular processing blocks, each containing its respective data loaders, training logic, evaluation scripts, and inference utilities.
+The speech emotion recognition system performs strongly on controlled emotional speech datasets containing relatively clean audio recordings.
+
+However, real-world performance may decrease in noisy environments due to:
+- Background noise
+- Echo and reverberation
+- Low-quality microphones
+- Multiple speakers
+- Environmental interference
+
+The project was primarily trained and evaluated on clean studio-quality recordings and was not specifically optimized for noise-robust deployment.
+
+Future improvements may include:
+- Noise augmentation training
+- Larger real-world datasets
+- Cross-dataset generalization
+- Improved multimodal fusion strategies
+- Real-time deployment optimization
+
+---
+
+# Repository Structure
 
 ```text
 Multimodal-Emotion-Recognition/
+│
 ├── models/
-│   ├── fusion_pipeline/
-│   │   ├── fusion_model_utils.py
-│   │   ├── infer_fusion.py
-│   │   ├── test_fusion.py
-│   │   └── train.py
 │   ├── speech_pipeline/
-│   │   ├── 03-01-01-01-01-01-15.wav
-│   │   ├── 03-01-01-01-01-01-20.wav
-│   │   ├── 03-01-04-02-01-01-12.wav
-│   │   ├── 03-01-04-02-02-01-18.wav
-│   │   ├── 03-01-05-01-01-02-15.wav
-│   │   ├── OAF_back_disgust.wav
-│   │   ├── OAF_burn_happy.wav
-│   │   ├── YAF_bean_sad.wav
-│   │   ├── infer.py
-│   │   ├── model_utils.py
-│   │   ├── test_speech.py
-│   │   └── train.py
-│   └── text_pipeline/
-│       ├── infer_text.py
-│       ├── test_text.py
-│       ├── text_model_utils.py
-│       ├── text_per_class_accuracy.txt
-│       └── train.py
-├── results/
-│   ├── plots/
-│   │   └── [Visual charts and analytical plots]
-│   ├── fusion_report.txt
-│   ├── speech_report.txt
-│   └── text_report.txt
-├── .gitignore
+│   ├── text_pipeline/
+│   └── fusion_pipeline/
+│
+├── data/
+│
+├── requirements.txt
 ├── README.md
-└── requirements.txt
+└── .gitignore
 ```
 
 ---
 
-## ⚙️ Core Methodologies
+# Dataset
 
-### 1. Acoustic Modality (Speech Pipeline)
+This project uses the:
 
-**Feature Extraction:** Raw audio tracks are processed to capture 40 Mel-Frequency Cepstral Coefficients (MFCCs) along with their first and second derivatives.
+## Toronto Emotional Speech Set (TESS)
 
-**Temporal Block:** A Bidirectional LSTM tracks acoustic variations over time.
+The dataset contains emotional speech recordings across multiple emotion classes.
 
-**Contextual Block:** A custom Attention mechanism dynamically weights hidden states, highlighting emotionally informative regions.
-
-### 2. Lexical Modality (Text Pipeline)
-
-Leverages a fine-tuned `bert-base-uncased` transformer backbone.
-
-Converts textual transcription inputs into token sequences suitable for contextual language modelling.
-
-### 3. Cross-Modal Gated Fusion
-
-Feature representations from both Speech and Text backbones are projected into a shared space before fusion.
-
-**Attentive Gating Network:** A neural gate calculates an attention weight between 0 and 1 using a Sigmoid activation function.
-
-**Dynamic Fusion:** The network combines speech and text features according to the learned gate value to create a joint representation for classification.
+Dataset download:
+https://www.kaggle.com/datasets/ejlok1/toronto-emotional-speech-set-tess
 
 ---
 
-## 📊 Experimental Results & System Analysis
+# Installation
 
-### The Dataset Reality
-
-During standalone testing, the Text Pipeline approaches random-chance performance levels. This is expected because the TESS dataset uses lexically neutral carrier phrases, providing little semantic information for the language model.
-
-### Fusion Pipeline Analysis
-
-The fusion model learns to adaptively determine the importance of each modality. During inference, the gating network places greater emphasis on speech features while reducing the contribution of less informative text features.
-
-This demonstrates the ability of the fusion architecture to adapt to varying modality quality and rely on the most informative source of emotional information.
-
----
-
-## 💻 Usage & Interactive Inference
-
-### 1. Installation
-
-Clone the repository and install the required dependencies:
+Clone the repository:
 
 ```bash
 git clone https://github.com/kishanjayaprakash/Multimodal-Emotion-Recognition.git
+
 cd Multimodal-Emotion-Recognition
+```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Live Dynamic Testing
+---
 
-Each pipeline contains an interactive inference script.
+# Dataset Setup
 
-To run multimodal inference:
+Download the TESS dataset and place it inside:
+
+```text
+data/TESS/
+```
+
+Expected structure:
+
+```text
+data/
+└── TESS/
+    ├── OAF_angry/
+    ├── OAF_happy/
+    ├── YAF_sad/
+    └── ...
+```
+
+---
+
+# Model Weights
+
+Pretrained `.pth` model files are not included in the repository due to GitHub storage limitations.
+
+Place downloaded checkpoints inside:
+
+```text
+models/
+models/text_pipeline/
+models/fusion_pipeline/
+```
+
+---
+
+# Running the Speech Pipeline
+
+```bash
+cd models/speech_pipeline
+
+python train.py
+```
+
+Testing:
+
+```bash
+python test_speech.py
+```
+
+---
+
+# Running the Text Pipeline
+
+```bash
+cd models/text_pipeline
+
+python train.py
+```
+
+Testing:
+
+```bash
+python test_text.py
+```
+
+---
+
+# Running the Fusion Pipeline
 
 ```bash
 cd models/fusion_pipeline
+
+python train.py
+```
+
+Testing:
+
+```bash
+python test_fusion.py
+```
+
+---
+
+# Live Inference
+
+Speech inference:
+
+```bash
+cd models/speech_pipeline
+
+python infer.py
+```
+
+Fusion inference:
+
+```bash
+cd models/fusion_pipeline
+
 python infer_fusion.py
 ```
 
-You can also test the standalone modalities:
+---
 
-```bash
-python infer_speech.py
-```
+# Evaluation Outputs
 
-or
+The evaluation scripts generate:
+- Accuracy reports
+- Confusion matrices
+- Per-class accuracy tables
+- Training curves
+- t-SNE feature visualizations
 
-```bash
-python infer_text.py
-```
+---
+
+# Technologies Used
+
+- Python
+- PyTorch
+- HuggingFace Transformers
+- Librosa
+- NumPy
+- Scikit-learn
+- Matplotlib
+
+---
+
+# Key Learning Outcomes
+
+This project demonstrates:
+- Speech-based emotion recognition
+- Transformer-based text analysis
+- Temporal sequence modeling using Bi-LSTMs
+- Attention mechanisms
+- Multimodal deep learning fusion
+- Cross-modal gating strategies
+- Feature visualization and evaluation
+
+---
+
+# Author
+
+Kishan Jayaprakash
+
+GitHub Repository:
+https://github.com/kishanjayaprakash/Multimodal-Emotion-Recognition
