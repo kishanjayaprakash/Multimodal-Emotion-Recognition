@@ -116,35 +116,40 @@ These results indicate that the gating mechanism effectively adapts to modality 
 The workspace is separated into modular processing blocks, each containing its respective data loaders, training logic, evaluation scripts, and inference utilities.
 
 ```text
-Multimodal Emotion Recognition/
+Multimodal-Emotion-Recognition/
 ├── models/
+│   ├── fusion_pipeline/
+│   │   ├── fusion_model_utils.py
+│   │   ├── infer_fusion.py
+│   │   ├── test_fusion.py
+│   │   └── train.py
 │   ├── speech_pipeline/
+│   │   ├── 03-01-01-01-01-01-15.wav
+│   │   ├── 03-01-01-01-01-01-20.wav
+│   │   ├── 03-01-04-02-01-01-12.wav
+│   │   ├── 03-01-04-02-02-01-18.wav
+│   │   ├── 03-01-05-01-01-02-15.wav
+│   │   ├── OAF_back_disgust.wav
+│   │   ├── OAF_burn_happy.wav
+│   │   ├── YAF_bean_sad.wav
+│   │   ├── infer.py
 │   │   ├── model_utils.py
-│   │   ├── train.py
-│   │   ├── test.py
-│   │   └── infer_speech.py
-│   ├── text_pipeline/
-│   │   ├── model_utils.py
-│   │   ├── train.py
-│   │   ├── test_text.py
-│   │   └── infer_text.py
-│   └── fusion_pipeline/
-│       ├── fusion_model_utils.py
-│       ├── train.py
-│       ├── test_fusion.py
-│       └── infer_fusion.py
+│   │   ├── test_speech.py
+│   │   └── train.py
+│   └── text_pipeline/
+│       ├── infer_text.py
+│       ├── test_text.py
+│       ├── text_model_utils.py
+│       ├── text_per_class_accuracy.txt
+│       └── train.py
 ├── results/
+│   ├── plots/
+│   │   └── [Visual charts and analytical plots]
 │   ├── fusion_report.txt
 │   ├── speech_report.txt
-│   ├── text_report.txt
-│   └── plots/
-│       ├── cm_fusion.png
-│       ├── cm_speech.png
-│       ├── cm_text.png
-│       ├── tsne_temporal.png
-│       ├── tsne_contextual.png
-│       └── tsne_fusion.png
+│   └── text_report.txt
 ├── .gitignore
+├── README.md
 └── requirements.txt
 ```
 
