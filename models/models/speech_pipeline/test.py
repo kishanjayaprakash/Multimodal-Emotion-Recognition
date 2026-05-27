@@ -8,9 +8,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from model_utils import TESSDataset, SpeechEmotionModel
 
-MODEL_DIR = "../models"
-# Resolving directory structure layout to drop files cleanly in your main project folder
-RESULT_DIR = os.path.abspath(os.path.join(os.getcwd(), "..", "models", "Results"))
+# --- EXACT PATHS BASED ON YOUR DIRECTORY IMAGE ---
+# Weight files are located one level up in models/models
+MODEL_DIR = os.path.abspath(os.path.join(os.getcwd(), "..", "models"))
+# Target results folder is two levels up at the root level
+RESULT_DIR = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "results"))
 
 N_MFCC = 40
 INPUT = N_MFCC * 3
@@ -19,23 +21,18 @@ CLASSES = 7
 EMOTIONS = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'ps', 'sad']
 
 def extract_layers(model, loader, device):
-    """Extracts targets along with Temporal and Contextual representations."""
     X_ctx, X_temp, y_true, y_pred = [], [], [], []
-    
     with torch.no_grad():
         for x, y in loader:
             x = x.to(device)
             logits, lstm_out, ctx, _ = model(x, return_features=True)
             preds = torch.argmax(logits, dim=1)
-            
-            # Temporal Compression: Mean-pool representations across sequence time-steps [cite: 74]
             temp_pooled = torch.mean(lstm_out, dim=1)
 
             X_ctx.append(ctx.cpu().numpy())
             X_temp.append(temp_pooled.cpu().numpy())
             y_true.extend(y.numpy())
             y_pred.extend(preds.cpu().numpy())
-
     return np.concatenate(X_ctx), np.concatenate(X_temp), np.array(y_true), np.array(y_pred)
 
 def generate_tsne_plot(features, labels, title, filename):
@@ -63,15 +60,17 @@ def generate_tsne_plot(features, labels, title, filename):
 def test():
     os.makedirs(RESULT_DIR, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
     dataset = TESSDataset()
     
-    # Load frozen test tokens saved during training execution
     indices_path = os.path.join(MODEL_DIR, "test_indices.pt")
     weights_path = os.path.join(MODEL_DIR, "speech_model_best.pth")
     
     if not (os.path.exists(indices_path) and os.path.exists(weights_path)):
-        raise FileNotFoundError("❌ Disconnected pipelines! Run train.py completely before execution.")
+        raise FileNotFoundError(
+            f"❌ Speech files missing!\n"
+            f"Expected weights at: {weights_path}\n"
+            f"Expected indices at: {indices_path}"
+        )
         
     te_idx = torch.load(indices_path)
     loader = DataLoader(Subset(dataset, te_idx), batch_size=32, shuffle=False)
@@ -82,18 +81,29 @@ def test():
 
     X_ctx, X_temp, y_true, y_pred = extract_layers(model, loader, device)
 
-    # Text Analysis Logs [cite: 61, 68]
+    # 1. Generate the Variant Accuracy Report
+    report_text = classification_report(y_true, y_pred, target_names=EMOTIONS)
+
     print("\n" + "="*60)
     print("           SPEECH EVALUATION CLASSIFICATION REPORT")
     print("="*60)
-    print(classification_report(y_true, y_pred, target_names=EMOTIONS))
+    print(report_text)
     print("="*60)
 
-    # Graph 1 & 2 Generation: t-SNE Maps [cite: 73, 74, 75]
+    # 2. SAVE the Speech Variant Accuracy Table separately to your root results folder
+    report_path = os.path.join(RESULT_DIR, "speech_report.txt")
+    with open(report_path, "w") as f:
+        f.write("="*60 + "\n")
+        f.write("           SPEECH EVALUATION CLASSIFICATION REPORT\n")
+        f.write("="*60 + "\n")
+        f.write(report_text)
+        f.write("="*60 + "\n")
+    print(f"✅ Saved speech variant accuracy table to: {report_path}")
+
+    # 3. Save Charts
     generate_tsne_plot(X_temp, y_true, "Temporal Modelling Block (LSTM)", "tsne_temporal.png")
     generate_tsne_plot(X_ctx, y_true, "Contextual Modelling Block (Attention)", "tsne_contextual.png")
 
-    # Graph 3 Generation: Confusion Matrix [cite: 71]
     print("Plotting Performance Confusion Matrix...")
     cm = confusion_matrix(y_true, y_pred)
     plt.figure(figsize=(8, 7))
