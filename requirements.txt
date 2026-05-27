@@ -6,6 +6,8 @@ torchvision
 transformers>=4.30.0
 huggingface-hub
 
+librosa==0.11.0
+
 # Data Science & Evaluation Metrics
 numpy>=1.22.0
 scikit-learn>=1.0.0
