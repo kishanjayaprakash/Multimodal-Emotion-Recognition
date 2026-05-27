@@ -1,0 +1,15 @@
+# Core Frameworks
+torch>=2.0.0
+torchvision
+
+# Transformer & Text Embeddings
+transformers>=4.30.0
+huggingface-hub
+
+# Data Science & Evaluation Metrics
+numpy>=1.22.0
+scikit-learn>=1.0.0
+
+# Visualization Tools
+matplotlib>=3.5.0
+seaborn>=0.11.0
