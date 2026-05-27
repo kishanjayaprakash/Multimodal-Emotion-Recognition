@@ -104,33 +104,47 @@ Future improvements may include:
 # Repository Structure
 
 ```text
-multimodal-emotion-recognition/
+Multimodal-Emotion-Recognition/
 │
 ├── data/
-│   └── TESS/  # Toronto Emotional Speech Set dataset
+│   └── TESS/
 │
 ├── models/
+│   ├── fusion_pipeline/
+│   │   ├── fusion_model_utils.py
+│   │   ├── infer_fusion.py
+│   │   ├── test_fusion.py
+│   │   └── train.py
+│   │
 │   ├── speech_pipeline/
-│   │   ├── __init__.py
-│   │   ├── feature_extraction.py
-│   │   └── train_speech.py
+│   │   ├── 03-01-01-01-01-01-15.wav
+│   │   ├── 03-01-01-01-01-01-20.wav
+│   │   ├── 03-01-04-02-01-01-12.wav
+│   │   ├── 03-01-04-02-02-01-18.wav
+│   │   ├── 03-01-05-01-01-02-15.wav
+│   │   ├── OAF_back_disgust.wav
+│   │   ├── OAF_burn_happy.wav
+│   │   ├── YAF_bean_sad.wav
+│   │   ├── infer.py
+│   │   ├── model_utils.py
+│   │   ├── test_speech.py
+│   │   └── train.py
 │   │
-│   ├── text_pipeline/
-│   │   ├── __init__.py
-│   │   ├── text_preprocessing.py
-│   │   └── train_text.py
-│   │
-│   └── fusion_pipeline/
-│       ├── __init__.py
-│       ├── multimodal_fusion.py
-│       └── evaluate_fusion.py
+│   └── text_pipeline/
+│       ├── infer_text.py
+│       ├── test_text.py
+│       ├── text_model_utils.py
+│       ├── text_per_class_accuracy.txt
+│       └── train.py
 │
 ├── results/
-│   ├── logs/
-│   └── plots/
+│   ├── plots/
+│   │   └── [Visual charts and analytical plots]
+│   ├── fusion_report.txt
+│   ├── speech_report.txt
+│   └── text_report.txt
 │
-├── config.py
-├── main.py
+├── .gitignore
 ├── README.md
 └── requirements.txt
 ```
