@@ -56,7 +56,7 @@ To study these characteristics, this repository implements and compares three se
                            │
                            ▼
                 ┌───────────────────────┐
-                │    Self-Attention     │
+                │     Self-Attention    │
                 │ Important Time Frames │
                 └──────────┬────────────┘
                            │
@@ -77,7 +77,7 @@ To study these characteristics, this repository implements and compares three se
                            │
                            ▼
                 ┌───────────────────────┐
-                │    BERT Tokenizer     │
+                │     BERT Tokenizer    │
                 └──────────┬────────────┘
                            │
                            ▼
@@ -130,14 +130,14 @@ To study these characteristics, this repository implements and compares three se
 | Pipeline            | Core Architecture          | Validation Accuracy |
 | ------------------- | -------------------------- | ------------------- |
 | 📝 Text Pipeline    | Fine-Tuned BERT            | ~14.29%             |
-| 🎙️ Speech Pipeline | MFCC + Bi-LSTM + Attention | **99.64%**          |
-| 🔀 Fusion Pipeline  | Attentive Gated Fusion     | **100.00%**         |
+| 🎙️ Speech Pipeline | MFCC + Bi-LSTM + Attention | 99.64%              |
+| 🔀 Fusion Pipeline  | Attentive Gated Fusion     | 100.00%             |
 
 ---
 
 # 🔍 Critical Observation — Modality Collapse
 
-The **TESS dataset** primarily contains emotionally neutral lexical phrases such as:
+The TESS dataset primarily contains emotionally neutral lexical phrases such as:
 
 > “Say the word back”
 > “Say the word bar”
@@ -197,13 +197,13 @@ These plots help visualize:
 
 ## 🎙️ Temporal Speech Embedding t-SNE
 
-![Temporal t-SNE](results/plots/tsne_temporal.png)
+![Speech t-SNE](results/plots/tsne_temporal.png)
 
 ---
 
 ## 📝 Contextual Text Embedding t-SNE
 
-![Contextual t-SNE](results/plots/tsne_contextual.png)
+![Text t-SNE](results/plots/tsne_contextual.png)
 
 ---
 
@@ -243,7 +243,7 @@ results/
 
 ---
 
-# 🎙️ Speech Pipeline Report
+## 🎙️ Speech Pipeline Report
 
 ```text
 results/speech_report.txt
@@ -260,7 +260,7 @@ Contains:
 
 ---
 
-# 📝 Text Pipeline Report
+## 📝 Text Pipeline Report
 
 ```text
 results/text_report.txt
@@ -275,7 +275,7 @@ Contains:
 
 ---
 
-# 🔀 Fusion Pipeline Report
+## 🔀 Fusion Pipeline Report
 
 ```text
 results/fusion_report.txt
@@ -384,7 +384,9 @@ The dataset contains emotional speech recordings across multiple emotion classes
 
 Dataset download:
 
+```text
 https://www.kaggle.com/datasets/ejlok1/toronto-emotional-speech-set-tess
+```
 
 ---
 
@@ -419,8 +421,6 @@ git clone https://github.com/kishanjayaprakash/Multimodal-Emotion-Recognition.gi
 cd Multimodal-Emotion-Recognition
 ```
 
----
-
 ## Install Dependencies
 
 ```bash
@@ -442,7 +442,9 @@ You can run and test the complete project directly via Google Colab using the pr
 
 ## Google Drive Link of Project
 
+```text
 https://drive.google.com/drive/folders/1Q4eUv0S8ieQp7XKGsgnzRVI9mP-3BN7C?usp=sharing
+```
 
 ---
 
@@ -452,7 +454,9 @@ Pretrained `.pth` model files are not included directly in the repository due to
 
 ## Download Binary Weights
 
+```text
 https://drive.google.com/drive/folders/1bD4fco1VvfyAxxHs54QyVpb5hpi4Shbt?usp=sharing
+```
 
 Place downloaded checkpoints inside these directories:
 
@@ -597,17 +601,80 @@ results/
 
 # ⚠️ Limitations
 
-The speech emotion recognition system performs strongly on controlled emotional speech datasets containing relatively clean audio recordings.
+While the system reaches exceptionally high performance under validation scenarios, several domain-specific, mathematical, and algorithmic limitations restrict its generalized real-world deployment.
 
-However, real-world performance may decrease in noisy environments due to:
+## 1. Acoustic Feature Vulnerabilities & Mathematical Limits
+
+### MFCC Static Deficiencies
+
+Mel-Frequency Cepstral Coefficients (MFCCs) assume short-term stationary signals, missing long-range non-linear transitions.
+
+They discard absolute phase information, which carries subtle cues related to vocal tract tension and micro-prosody.
+
+### Velocity (Δ) & Acceleration (ΔΔ) Bounds
+
+The finite difference approximations used to compute first derivative (Δ) and second derivative (ΔΔ) coefficients track local frame velocity and acceleration.
+
+However, they are highly sensitive to sudden transients, phase jitter, and channel distortions, causing fragile input vectors in unconstrained fields.
+
+### Spectral Entropy Over-Reliance
+
+Sub-band spectral entropy helps track structural distribution changes in the signal energy spectrum across frames.
+
+However, under fluctuating noise floors, the entropy boundary gets obscured, muddying the feature representation.
+
+---
+
+## 2. Algorithmic & Architectural Constraints
+
+### Bi-LSTM Recurrent Bottlenecks
+
+The Bidirectional Long Short-Term Memory (Bi-LSTM) network captures historical and future dependencies sequentially.
+
+Yet, it suffers from information leakage and performance decay over long sequences.
+
+### BERT Static Token Desensitization
+
+The pre-trained BERT transformer tokenizes input transcripts contextually.
+
+However, because the training samples lack diverse emotional syntax, BERT remains relatively invariant to pure voice markers.
+
+### Gated Fusion Sub-Optimization (Modality Collapse)
+
+The attentive gated cross-modal fusion layer uses a soft gating mechanism to weigh the importance coefficients of speech and text embeddings.
+
+Because the textual embeddings provide low discriminative entropy, the gating weights systematically downscale the text branch close to zero.
+
+This triggers modality collapse, transforming the framework into an almost exclusively acoustic model.
+
+---
+
+## 3. TESS Dataset Constraints & Pipeline Isolation
+
+### Lexical Homogeneity
+
+The Toronto Emotional Speech Set (TESS) uses nearly identical phrase templates across emotion classes.
+
+This creates a structural imbalance where semantic vectors contribute very little to classification.
+
+### Isolated Processing Topologies
+
+The speech and text networks operate as decoupled feature extractors prior to the gated fusion junction.
+
+The system lacks a continuous Audio-to-Text pipeline such as an end-to-end ASR interface.
+
+### Acoustic Environment Ceiling
+
+The framework achieves extremely high validation performance because the TESS dataset consists of clean studio-quality recordings.
+
+Real-world conditions such as:
 
 * Background noise
-* Echo and reverberation
+* Reverberation
+* Overlapping speakers
 * Low-quality microphones
-* Multiple speakers
-* Environmental interference
 
-The project was primarily trained and evaluated on clean studio-quality recordings and was not specifically optimized for noise-robust deployment.
+can significantly degrade performance.
 
 ---
 
@@ -643,4 +710,6 @@ This project demonstrates:
 
 GitHub Repository:
 
+```text
 https://github.com/kishanjayaprakash/Multimodal-Emotion-Recognition
+```
