@@ -15,15 +15,26 @@ from fusion_model_utils import MultimodalFusionModel
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 EMOTIONS = ["angry", "disgust", "fear", "happy", "neutral", "pleasant surprise", "sad"]
 
-# ==========================================
-# ⚙️ USER CONFIGURATION BLOCK (EMPTY BY DEFAULT)
-# ==========================================
-AUDIO_DATA_DIR = ""  # <-- Insert your TESS dataset directory path here
-# Example: "/content/drive/MyDrive/Multimodal Emotion Recognition/data/TESS" or "./data/TESS"
+# ====================================================================
+# ⚙️ SYSTEM PATH CONFIGURATIONS
+# ====================================================================
+# Configured default dataset folder tracker reference
+AUDIO_DATA_DIR = "data/TESS" 
 
-if not AUDIO_DATA_DIR or not os.path.exists(AUDIO_DATA_DIR):
-    print("❌ ERROR: AUDIO_DATA_DIR is empty or invalid.")
-    print("Please open this file and configure your dataset path variable before running execution routines.")
+# Target file variable example (e.g., file_path = "03-01-04-02-01-01-12.wav")
+# Left empty here to allow the interactive console loop to query index keys dynamically.
+TARGET_SAMPLE_FILE = "" 
+
+# Resolve directory relative to root execution space if needed
+if not os.path.exists(AUDIO_DATA_DIR):
+    # Check parent structure fallback
+    ALTERNATIVE_PATH = "../../data/TESS"
+    if os.path.exists(ALTERNATIVE_PATH):
+        AUDIO_DATA_DIR = ALTERNATIVE_PATH
+
+if not os.path.exists(AUDIO_DATA_DIR):
+    print(f"❌ ERROR: TESS dataset directory not found at target tracking route: '{AUDIO_DATA_DIR}'")
+    print("Please verify your repository directory mapping architecture before initiating initialization.")
     sys.exit(1)
 
 print("🔄 Initializing Full Dynamic Multimodal Inference Rig...")
