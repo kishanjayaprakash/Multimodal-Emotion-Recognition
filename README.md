@@ -315,6 +315,10 @@ Below is the execution output when testing a sample from the RAVDESS dataset usi
 • Happy                     : 0.01%
 ========================================
 ```
+⚠️ Note:  
+The above inference example demonstrates a representative cross-dataset prediction limitation during evaluation on a RAVDESS sample. Although the ground truth emotion is labeled as **Sad**, the model predicts **Pleasant Surprise** with very high confidence. This behavior highlights the distributional differences between TESS and RAVDESS emotional speech patterns, including variations in prosody, vocal intensity, speaking dynamics, and acoustic expression styles.  
+
+The example reflects one of the core limitations discussed in this project: extremely high validation accuracy on clean, controlled datasets does not always guarantee strong cross-dataset generalization performance.
 
 ---
 
