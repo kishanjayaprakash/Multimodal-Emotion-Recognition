@@ -290,7 +290,34 @@ Contains:
 
 ---
 
-# 🎙️ Speech Pipeline Sample Execution Log
+# 🎙️ Speech Pipeline Sample Execution Logs
+
+## ✅ TESS Dataset Sample — Correct Prediction
+
+Below is a successful inference example using a TESS dataset audio sample.
+
+```text
+========================================
+ FILE: OAF_back_disgust.wav
+ ACTUAL EMOTION (Ground Truth) : UNKNOWN
+========================================
+  MODEL PREDICTED EMOTION   |  CONFIDENCE
+----------------------------------------
+• Disgust                   : 99.98%
+• Fear                      : 0.01%
+• Pleasant Surprise         : 0.01%
+• Sad                       : 0.00%
+• Neutral                   : 0.00%
+• Angry                     : 0.00%
+• Happy                     : 0.00%
+========================================
+```
+
+This example demonstrates strong performance on in-distribution TESS emotional speech samples where the acoustic characteristics closely match the training distribution.
+
+---
+
+## ⚠️ RAVDESS Dataset Sample — Cross-Dataset Limitation
 
 Below is the execution output when testing a sample from the RAVDESS dataset using the Speech Pipeline (`infer.py`) with a sad audio file.
 
@@ -315,8 +342,17 @@ Below is the execution output when testing a sample from the RAVDESS dataset usi
 • Happy                     : 0.01%
 ========================================
 ```
-⚠️ Note:  
-The above inference example demonstrates a representative cross-dataset prediction limitation during evaluation on a RAVDESS sample. Although the ground truth emotion is labeled as **Sad**, the model predicts **Pleasant Surprise** with very high confidence. This behavior highlights the distributional differences between TESS and RAVDESS emotional speech patterns, including variations in prosody, vocal intensity, speaking dynamics, and acoustic expression styles.  
+
+⚠️ Note:
+
+The above inference example demonstrates a representative cross-dataset prediction limitation during evaluation on a RAVDESS sample. Although the ground truth emotion is labeled as **Sad**, the model predicts **Pleasant Surprise** with very high confidence.
+
+This behavior highlights the distributional differences between TESS and RAVDESS emotional speech patterns, including variations in:
+
+* Prosody
+* Vocal intensity
+* Speaking dynamics
+* Acoustic expression styles
 
 The example reflects one of the core limitations discussed in this project: extremely high validation accuracy on clean, controlled datasets does not always guarantee strong cross-dataset generalization performance.
 
