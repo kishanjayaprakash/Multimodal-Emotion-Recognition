@@ -15,6 +15,17 @@ from fusion_model_utils import MultimodalFusionModel
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 EMOTIONS = ["angry", "disgust", "fear", "happy", "neutral", "pleasant surprise", "sad"]
 
+# ==========================================
+# ⚙️ USER CONFIGURATION BLOCK (EMPTY BY DEFAULT)
+# ==========================================
+AUDIO_DATA_DIR = ""  # <-- Insert your TESS dataset directory path here
+# Example: "/content/drive/MyDrive/Multimodal Emotion Recognition/data/TESS" or "./data/TESS"
+
+if not AUDIO_DATA_DIR or not os.path.exists(AUDIO_DATA_DIR):
+    print("❌ ERROR: AUDIO_DATA_DIR is empty or invalid.")
+    print("Please open this file and configure your dataset path variable before running execution routines.")
+    sys.exit(1)
+
 print("🔄 Initializing Full Dynamic Multimodal Inference Rig...")
 tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 speech_base = speech_utils.SpeechEmotionModel(input_size=120, hidden=128, num_classes=7)
@@ -30,12 +41,11 @@ else:
 
 model.eval()
 
-# Load the dataset arrays
-AUDIO_DATA_DIR = "/content/drive/MyDrive/Multimodal Emotion Recognition/data/TESS"
+# Load the dataset arrays dynamically
 audio_dataset = speech_utils.TESSDataset(data_dir=AUDIO_DATA_DIR)
 
 print("\n" + "="*60)
-print("             DYNAMIC AUDIO + TEXT FUSION CONSOLE")
+print("           DYNAMIC AUDIO + TEXT FUSION CONSOLE")
 print("="*60)
 print("Type 'exit' to quit.\n")
 
